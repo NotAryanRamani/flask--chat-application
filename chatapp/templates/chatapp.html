@@ -2,13 +2,15 @@
 {% block cont %}
 <div class="card" style="margin-left: 20px; margin-right: 20px; white-space: nowrap; overflow: auto; ">
     <div class="card-header">
-    <span id="join_chat_room">Click Me to Join the Chat Room</span>
+    {% for room in rooms %}
+    <span class="room" style="padding: 5px 5px; border: 2px solid grey">{{ room }}</span>
+    {% endfor %}
     </div>
     <div>
         <div class="card-body" style="overflow-y: auto; min-height:600px; max-height: 600px; display: inline-block; width:80%;" id="message_display">
 
         </div>
-        <div class="card-body" style="overflow-y: auto; overflow-x: scroll; height:600px; width: 20%; background-color: #d3d3d3; display: inline-block; " id="online_users">
+        <div class="card-body" style="overflow-y: auto; overflow-x: scroll; height:600px; width: 20%; background-color: #d3d3d3; display: inline-block;" id="online_users">
             Online User
         </div>
     </div>

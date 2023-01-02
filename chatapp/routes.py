@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, current_user, login_required, logout_user
 from flask_socketio import send, join_room, leave_room, emit
 
@@ -6,8 +6,12 @@ from chatapp import app, db, socketio, ROOMS
 import bcrypt
 from chatapp.models import User
 
-active_users = list()
-
+active_users = {
+    'Room 1': [],
+    'Room 2': [],
+    'Room 3': []
+}
+ROOMS = ['Room 1', 'Room 2', 'Room 3']
 
 
 @app.route('/')
@@ -65,42 +69,47 @@ def mydetails():
 
 @socketio.on('message')
 def message(data):
-    send({'msg':data['msg'], 'username': data['username'], 'room': data['room']}, room=data['room'])
+    send({'msg':data['msg'], 'username': data['username']}, room=data['room'])
 
 
 @socketio.on('join')
 def join(data):
-    join_room(data['room'])
-    if data['username'] not in active_users:
-        send({'msg': " joined the chat room", 'username': data['username']}, room=data['room'])
-        active_users.append(data['username'])
-        # print(active_users)
-    emit('add_users', active_users, broadcast=True)
+    room = data['room']
+    join_room(room)
+    send({'msg': " joined the chat room", 'username': data['username']}, room=room)
+    username = data['username']
+    if username not in active_users[room]:
+        active_users[room].append(username)
+    users = active_users[room]
+    emit('add_users', users, broadcast=True, room=room)
+
+
 
 
 @socketio.on('leave')
 def leave(data):
-    print(data)
+    # print(data)
     username = data['username']
     room = data['room']
-    data = {'user': username, 'msg': 'has left the chat'}
-    emit('system', data, broadcast=True, room=room)
-    active_users.remove(username)
-    emit('add_users', active_users, broadcast=True, room=room)
-
+    leave_room(room)
+    send({'msg': " left the chat room", 'username': username}, room=room)
+    active_users[room].remove(username)
+    users = active_users[room]
+    emit('add_users', users, broadcast=True, room=room)
+    
 
 @socketio.on('connected')
 def connected(username):
-    pass
+    session['username'] = username
 
 
 @socketio.on('disconnected')
 def handle_disconnect(data):
     logout_user()
-    # print('working')
     username = data['username']
     room = data['room']
     data = {'user': username, 'msg': 'has logged out'}
     emit('system', data, broadcast=True, room=room)
-    active_users.remove(username)
-    emit('add_users', active_users, broadcast=True, room=room)
+    active_users[room].remove(username)
+    users = active_users[room]
+    emit('add_users', users, broadcast=True, room=room)

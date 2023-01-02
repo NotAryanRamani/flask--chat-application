@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     var socket = io();
-    let room='chat';
+    let room='Room 1';
+    joinRoom(room);
 
     socket.on('connect', () => {
         socket.emit('connected', username);
@@ -12,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelector('#my_details').onclick = () => {
-        socket.emit('leave', {'username': username, 'room': room})
+        leaveRoom(room);
     }
 
     socket.on('message', data => {
@@ -32,35 +33,36 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#msg_bar').value = '';
     };
 
-
-    document.querySelector('#join_chat_room').onclick = () => {
-        document.querySelector('#join_chat_room').innerHTML = 'Chat Room';
-        document.querySelector('#message_display').innerHTML = '';
-        joinRoom(room);
-    };
+    document.querySelectorAll('span.room').forEach(
+        span => {
+            span.onclick = () => {
+                let new_room = span.innerHTML;
+                if(new_room == room){
+                    msg = `You are already in ${room}`;
+                    alert(msg);
+                }
+                else {
+                    leaveRoom(room);
+                    joinRoom(new_room);
+                    room = new_room;
+                }
+            }
+        }
+    );
 
     function joinRoom(room){
+        document.querySelector('#message_display').innerHTML = '';
         socket.emit('join', {'username': username, 'room': room});
     }
 
-    // function joinRoom(room){
-    //     console.log(room);
-    //     if(!(room == 'chat')){
-    //         room = "chat";
-    //         socket.emit('join', {'username': username, 'room': room});
-    //     } else {
-    //         socket.emit('already_join', {'username': username, 'room': room})
-    //     }
-    // }
-
-    socket.on('add_users', users => {
+    socket.on('add_users', function(users) {
         document.querySelector('#online_users').innerHTML = "Online Users: ";
         for(var i = 0; i < users.length; i++) {
             const p_users = document.createElement('p');
             p_users.innerHTML = users[i];
             document.querySelector('#online_users').append(p_users);
         }
-    })
+    });
 
     socket.on('system', data => {
         const p = document.createElement('p');
@@ -68,6 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
         b.innerHTML = data.user;
         p.innerHTML = b.outerHTML + ' | ' + data.msg;
         document.querySelector('#message_display').append(p);
+    });
+
+    function leaveRoom(room){
+        socket.emit('leave', {'username': username, 'room': room});
+    };
+
+    addEventListener('beforeunload', () => {
+        socket.emit('disconnected', {'username': username, 'room':room});
     });
 
 })
