@@ -71,7 +71,11 @@ def message(data):
 @socketio.on('join')
 def join(data):
     join_room(data['room'])
-    send({'msg': " joined the chat room", 'username': data['username']}, room=data['room'])
+    if data['username'] not in active_users:
+        send({'msg': " joined the chat room", 'username': data['username']}, room=data['room'])
+        active_users.append(data['username'])
+        # print(active_users)
+    emit('add_users', active_users, broadcast=True)
 
 
 @socketio.on('leave')
@@ -87,16 +91,13 @@ def leave(data):
 
 @socketio.on('connected')
 def connected(username):
-    if username not in active_users:
-        active_users.append(username)
-    print(active_users)
-    emit('add_users', active_users, broadcast=True)
+    pass
 
 
 @socketio.on('disconnected')
 def handle_disconnect(data):
     logout_user()
-    print('working')
+    # print('working')
     username = data['username']
     room = data['room']
     data = {'user': username, 'msg': 'has logged out'}

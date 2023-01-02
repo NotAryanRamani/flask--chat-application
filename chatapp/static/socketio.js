@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     var socket = io();
-    var all_users = new Array();
     let room='chat';
-    initialJoin(room);
-
-
 
     socket.on('connect', () => {
         socket.emit('connected', username);
@@ -37,24 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    document.querySelector('#chat_room').onclick = () => {
-       document.querySelector('#message_display').innerHTML = '';
-       joinRoom(room);
+    document.querySelector('#join_chat_room').onclick = () => {
+        document.querySelector('#join_chat_room').innerHTML = 'Chat Room';
+        document.querySelector('#message_display').innerHTML = '';
+        joinRoom(room);
     };
 
-    function initialJoin(room){
+    function joinRoom(room){
         socket.emit('join', {'username': username, 'room': room});
     }
 
-    function joinRoom(room){
-        console.log(room);
-        if(!(room == 'chat')){
-            room = "chat";
-            socket.emit('join', {'username': username, 'room': room});
-        } else {
-            socket.emit('already_join', {'username': username, 'room': room})
-        }
-    }
+    // function joinRoom(room){
+    //     console.log(room);
+    //     if(!(room == 'chat')){
+    //         room = "chat";
+    //         socket.emit('join', {'username': username, 'room': room});
+    //     } else {
+    //         socket.emit('already_join', {'username': username, 'room': room})
+    //     }
+    // }
 
     socket.on('add_users', users => {
         document.querySelector('#online_users').innerHTML = "Online Users: ";
