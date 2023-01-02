@@ -1,1 +1,1 @@
-# flask--chat-application
+# flask-chat-application
