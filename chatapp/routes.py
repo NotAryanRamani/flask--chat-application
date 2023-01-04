@@ -47,14 +47,17 @@ def signup():
         email = request.form.get('email')
         username = request.form.get('username')
         passw = request.form.get('pass')
-        hashed_password = bcrypt.hashpw(passw.encode('utf-8'), bcrypt.gensalt())
-        if email and username and passw:
-            user = User(email=email, username = username, password=hashed_password)
-            db.session.add(user)
-            db.session.commit()
-            login_user(user)
-            flash("User Created", category='success')
-        return redirect(url_for('thechatapp'))
+        if len(passw) < 8: 
+            flash('Password must be alteast 8 characters.', category='error');
+        else:
+            hashed_password = bcrypt.hashpw(passw.encode('utf-8'), bcrypt.gensalt())
+            if email and username and passw:
+                user = User(email=email, username = username, password=hashed_password)
+                db.session.add(user)
+                db.session.commit()
+                login_user(user)
+                flash("User Created", category='success')
+            return redirect(url_for('thechatapp'))
     return render_template('signup.html', user=current_user)
 
 
