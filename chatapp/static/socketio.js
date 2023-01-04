@@ -21,10 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const b = document.createElement('b');
         if (data.username == username)  {
            b.innerHTML = "You";
+           p.innerHTML = data.msg + ' | ' + b.outerHTML;
+           p.style.textAlign = 'right';
         }   else{
             b.innerHTML = data.username;
+            p.innerHTML = b.outerHTML + ' | ' + data.msg;
         }
-        p.innerHTML = b.outerHTML + ' | ' + data.msg;
         document.querySelector('#message_display').append(p);
         var display = document.querySelector('#message_display');
         display.scrollTop = display.scrollHeight;
