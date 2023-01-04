@@ -25,12 +25,15 @@ def login():
         username = request.form.get('username')
         passw = request.form.get('pass')
         user = User.query.filter_by(username=username).first()
-        if bcrypt.checkpw(passw.encode('utf-8'), user.password):
-            flash("Logged In", category='success')
-            login_user(user, remember=True)
-            return redirect(url_for('thechatapp'))
+        if user:
+            if bcrypt.checkpw(passw.encode('utf-8'), user.password):
+                flash("Logged In", category='success')
+                login_user(user, remember=True)
+                return redirect(url_for('thechatapp'))
+            else:
+                flash("Wrong Details. Please Try Again!", category='error')
         else:
-            flash("Wrong Details. Please Try Again!", category='error')
+            flash('User does not exists! Please Sign up!', category='error')
     return render_template('login.html', user=current_user)
 
 @app.route('/logout')

@@ -26,11 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         p.innerHTML = b.outerHTML + ' | ' + data.msg;
         document.querySelector('#message_display').append(p);
+        var display = document.querySelector('#message_display');
+        display.scrollTop = display.scrollHeight;
     });
 
     document.querySelector('#send_button').onclick = () => {
-        socket.send({'msg': document.querySelector('#msg_bar').value, 'username': username, 'room': room});
+        var text = document.querySelector('#msg_bar').value;
+        if(text != ''){
+        socket.send({'msg': text, 'username': username, 'room': room});
         document.querySelector('#msg_bar').value = '';
+        }
     };
 
     document.querySelectorAll('span.room').forEach(
