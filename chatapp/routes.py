@@ -7,11 +7,10 @@ import bcrypt
 from chatapp.models import User
 
 active_users = {
-    'Room 1': [],
-    'Room 2': [],
-    'Room 3': []
 }
-ROOMS = ['Room 1', 'Room 2', 'Room 3']
+
+ROOMS = []
+user_room = str()
 
 
 @app.route('/')
@@ -29,7 +28,7 @@ def login():
             if bcrypt.checkpw(passw.encode('utf-8'), user.password):
                 flash("Logged In", category='success')
                 login_user(user, remember=True)
-                return redirect(url_for('thechatapp'))
+                return redirect(url_for('enter_code'))
             else:
                 flash("Wrong Details. Please Try Again!", category='error')
         else:
@@ -57,14 +56,37 @@ def signup():
                 db.session.commit()
                 login_user(user)
                 flash("User Created", category='success')
-            return redirect(url_for('thechatapp'))
+            return redirect(url_for('enter_code'))
     return render_template('signup.html', user=current_user)
+
+
+@app.route('/code', methods=['POST', 'GET'])
+@login_required
+def enter_code():
+    if request.method == 'POST':
+        user_room = request.form.get('code')
+        if not len(user_room) == 6:
+            flash('Code should be of 6 Characters only.', category='error')
+        else:
+            session['user_room'] = user_room
+            if user_room not in ROOMS:
+                ROOMS.append(user_room)
+                active_users[user_room] = []
+            return redirect(url_for('thechatapp'))
+    return render_template('code.html', user=current_user)
+
+
+@app.route('/leaveroom')
+@login_required
+def leaveroom():
+    return redirect(url_for('enter_code'))
 
 
 @app.route('/thechatapp')
 @login_required
 def thechatapp():
-    return render_template('chatapp.html', user=current_user, username = current_user.username, rooms = ROOMS)
+    user_room = session['user_room']
+    return render_template('chatapp.html', user=current_user, username = current_user.username, user_room = user_room)
 
 
 @app.route('/mydetails', methods=['POST', 'GET'])
@@ -90,8 +112,6 @@ def join(data):
     emit('add_users', users, broadcast=True, room=room)
 
 
-
-
 @socketio.on('leave')
 def leave(data):
     # print(data)
@@ -101,6 +121,9 @@ def leave(data):
     send({'msg': " left the chat room", 'username': username}, room=room)
     active_users[room].remove(username)
     users = active_users[room]
+    if len(active_users[room]) == 0:
+        active_users.pop(room)
+        ROOMS.remove(room)
     emit('add_users', users, broadcast=True, room=room)
     
 
@@ -118,4 +141,7 @@ def handle_disconnect(data):
     emit('system', data, broadcast=True, room=room)
     active_users[room].remove(username)
     users = active_users[room]
+    if len(active_users[room]) == 0:
+        active_users.pop(room)
+        ROOMS.remove(room)
     emit('add_users', users, broadcast=True, room=room)

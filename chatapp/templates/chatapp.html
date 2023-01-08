@@ -2,9 +2,7 @@
 {% block cont %}
 <div class="card" style="margin-left: 20px; margin-right: 20px; white-space: nowrap; overflow: auto; ">
     <div class="card-header">
-    {% for room in rooms %}
-    <span class="room" style="padding: 5px 5px; border: 2px solid grey; cursor: pointer;">{{ room }}</span>
-    {% endfor %}
+    <span class="room" style="padding: 5px 5px; border: 2px solid grey; cursor: pointer;">Room Code: {{ user_room }}</span>
     </div>
     <div>
         <div class="card-body" style="overflow-y: auto; min-height:600px; max-height: 600px; display: inline-block; width:80%;" id="message_display">
@@ -23,8 +21,9 @@
         <button type="button" class="btn btn-success" id="send_button">Send</button>
     </form>
 </div>
-<script src="{{ url_for('static', filename='socketio.js' ) }}"></script>
+<script src="{{ url_for('static', filename='js/socketio.js' ) }}"></script>
 <script type="text/javascript">
+    const user_room = `{{ user_room }}`;
     const username = `{{ username }}`;
     document.getElementById('msg_bar').onkeydown = function(e){
         if(e.keyCode == 13){

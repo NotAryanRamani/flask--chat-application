@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block cont %}
+<div class="code_center">
+    <form method="post" class="form_center">
+        <div class="form-group">
+        <label for="">Enter Code</label>
+        <input type="text" name="code" id="code" class="form-control" placeholder="Enter Code">
+        </div>
+        <center><button type="submit" class="btn btn-outline-success">Submit</button></center>
+    </form>
+</div>
+<script src="{{ url_for('static', filename='js/code.js') }}"></script>
+{% endblock %}

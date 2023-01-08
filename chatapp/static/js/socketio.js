@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     var socket = io();
-    let room='Room 1';
+    let room = user_room;
     joinRoom(room);
 
     socket.on('connect', () => {
@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelector('#my_details').onclick = () => {
+        leaveRoom(room);
+    }
+
+    document.querySelector('#leave_room').onclick = () => {
         leaveRoom(room);
     }
 
@@ -39,23 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#msg_bar').value = '';
         }
     };
-
-    document.querySelectorAll('span.room').forEach(
-        span => {
-            span.onclick = () => {
-                let new_room = span.innerHTML;
-                if(new_room == room){
-                    msg = `You are already in ${room}`;
-                    alert(msg);
-                }
-                else {
-                    leaveRoom(room);
-                    joinRoom(new_room);
-                    room = new_room;
-                }
-            }
-        }
-    );
 
     function joinRoom(room){
         document.querySelector('#message_display').innerHTML = '';
