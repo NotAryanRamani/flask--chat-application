@@ -2,7 +2,7 @@
 
 # Description
 * This project is a Simple group chat application.
-* A User can join various pre-defined rooms to chat with different people.
+* A User can join a chat room by entering the room code.
 
 # Requirements
 * Python 3
